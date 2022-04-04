@@ -1,3 +1,4 @@
+// crepe files
 const model_url =
   'https://cdn.jsdelivr.net/gh/ml5js/ml5-data-and-models/models/pitch-detection/crepe/';
 let pitch;
@@ -61,18 +62,22 @@ let notes = [
   }
 ];
 
+// vexflow objects/methods
 const { Factory, EasyScore, System } = Vex.Flow;
 const vf = new Factory({
   renderer: { elementId: "output", width: 500, height: 200 },
 });
 const score = vf.EasyScore();
 const system = vf.System();
+
+// generates notes to be displayed on canvas
 const n1 = notes[getRandomInt(0, notes.length)];
 const n2 = notes[getRandomInt(0, notes.length)];
 const n3 = notes[getRandomInt(0, notes.length)];
 const n4 = notes[getRandomInt(0, notes.length)];
 const genNotes = [n1, n2, n3, n4];
 
+// creates canvas and mic object
 function setup() {
   createCanvas(400, 400);
   audioContext = getAudioContext();
@@ -80,11 +85,13 @@ function setup() {
   mic.start(listening);
 }
 
+// gets pitch from mic input
 function listening() {
   console.log('listening');
   pitch = ml5.pitchDetection(model_url, audioContext, mic.stream, modelLoaded);
 }
 
+// draws tuner
 function draw() {
   background(0);
   textAlign(CENTER, CENTER);
@@ -92,9 +99,11 @@ function draw() {
   textSize(32);
   text(freq.toFixed(2), width / 2, height - 150);
 
+  // recognize pitch from key-value pairs
   let closestNote = -1;
   let recordDiff = Infinity;
   for (let i = 0; i < notes.length; i++) {
+    // out of range if below A#3
     if (freq < 220) {
       closestNote = notes[notes.length - 1];
     }
@@ -138,11 +147,13 @@ function draw() {
   rect(200 + diff / 2, 100, 10, 75);
 }
 
+// confirms model loaded
 function modelLoaded() {
   console.log('model loaded');
   pitch.getPitch(gotPitch);
 }
 
+// confirms pitch acquired
 function gotPitch(error, frequency) {
   if (error) {
     console.error(error);
@@ -155,13 +166,14 @@ function gotPitch(error, frequency) {
   }
 }
 
+// helper function for random note generation
 function getRandomInt(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
 }
 
-
+// draw stave with four random notes
 system.addStave({
     voices: [
     // Top voice has 4 quarter notes with stems up.
